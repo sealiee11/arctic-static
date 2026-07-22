@@ -2,7 +2,7 @@
   <foreignObject x="0" y="0" width="100%" height="100%">
     <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0">
       <iframe id="rail-embed-frame" allow="fullscreen" style="position:fixed;inset:0;width:100%;height:100%;border:none"></iframe>
-      <script>/*<![CDATA[*/
+      <script><![CDATA[
         (function(){
           function dec(b){var s=atob(b);var a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return new TextDecoder().decode(a);}
           var frame=document.getElementById("rail-embed-frame");
@@ -13,11 +13,12 @@
           var h=location.hash.slice(1);
           function targetOf(v){if(v.slice(0,4)!=="aw1."){try{return decodeURIComponent(v)}catch(e){return v}}try{var q=v.slice(4).replace(/-/g,"+").replace(/_/g,"/"),r=atob(q+"=".repeat((4-q.length%4)%4)),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return new TextDecoder().decode(a)}catch(e){return ""}}
           var target=h?targetOf(h):(p.get("url")||"");
-          var head='<base href="'+base+'"/>'+'<'+'script>window.__RAIL_EMBED_TARGET='+JSON.stringify(target)+';window.__RAIL_EMBED_BACKEND='+JSON.stringify(p.get("backend")||"scramjet2")+';window.__RAIL_EMBED_PALETTE='+JSON.stringify(p.get("palette")||"")+';</'+'script>';
-          html=html.replace("<head>","<head>"+head);
-          frame.srcdoc=html;
+          var shell=base+"embed-shell"+(p.toString()?"?"+p.toString():"")+(h?"#"+h:"");
+          function fallback(){var head='<base href="'+base+'"/>'+'<'+'script>window.__RAIL_EMBED_TARGET='+JSON.stringify(target)+';window.__RAIL_EMBED_BACKEND='+JSON.stringify(p.get("backend")||"scramjet2")+';window.__RAIL_EMBED_PALETTE='+JSON.stringify(p.get("palette")||"")+';</'+'script>';frame.srcdoc=html.replace("<head>","<head>"+head);}
+          function active(r){if(r.active)return Promise.resolve();var w=r.installing||r.waiting;if(!w)return Promise.reject(new Error("worker unavailable"));return new Promise(function(ok,bad){var t=setTimeout(function(){w.removeEventListener("statechange",c);bad(new Error("worker timeout"));},12000);function c(){if(w.state==="activated"){clearTimeout(t);w.removeEventListener("statechange",c);ok();}else if(w.state==="redundant"){clearTimeout(t);w.removeEventListener("statechange",c);bad(new Error("worker redundant"));}}w.addEventListener("statechange",c);});}
+          try{if(!("serviceWorker" in navigator)||!window.isSecureContext){fallback();return;}navigator.serviceWorker.register(base+"sw.js",{scope:new URL("./",base).pathname,updateViaCache:"none"}).then(active).then(function(){frame.src=shell;},fallback);}catch(e){fallback();}
         })();
-      /*]]>*/</script>
+      ]]></script>
     </body>
   </foreignObject>
 </svg>
