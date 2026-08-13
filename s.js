@@ -7,7 +7,7 @@ const pause = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 async function reviveRoute(event) {
   const pages = await self.clients.matchAll({ type: 'window', includeUncontrolled:true })
   for (const page of pages) page.postMessage({ $controller$swrevive: {} })
-  for (let attempt = 0; attempt < 60; attempt += 1) {
+  for (let attempt = 0; attempt < 320; attempt += 1) {
     if (self.$scramjetController.shouldRoute(event)) return self.$scramjetController.route(event)
     await pause(25)
   }
